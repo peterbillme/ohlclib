@@ -1,10 +1,9 @@
 import os
 import pathlib
 
-from yahoo_fin.stock_info import get_data, tickers_sp500
 import pandas as pd
+from yahoo_fin.stock_info import get_data, tickers_sp500
 
-from indicators.ema import ema_in_order
 from indicators.kd import kd
 from indicators.macd import macd, macd_increasing
 
@@ -56,7 +55,7 @@ def update_quotes_spx500():
         _i += 1
 
 
-def filter_1wk():
+def filter_1wk(latest_monday='2021-07-26'):
     spx500_tickers = tickers_sp500(True)
     num_total = spx500_tickers.shape[0]
     i = 1
@@ -64,14 +63,15 @@ def filter_1wk():
     for _row in spx500_tickers.itertuples():
         print(f"\nChecking {_row.Symbol}({i}/{num_total}) ...")
 
-        df, df_adj = load_quotes(_row.Symbol, '1wk')
-        # ema_in_order(data=df_adj, periods=[60, 120, 288, 338, 420])
-        kd(data=df_adj, discrete=False)
-        macd(df_adj)
-        macd_increasing(data=df_adj)
-        dd = df_adj.iloc[-1, :]
-
-        if dd.k >= 80 and dd.macd > 0 and dd.macd_increasing_2 == 1:
+        _, _df_adj = load_quotes(_row.Symbol, '1wk')
+        _df_adj = _df_adj.query(f"index<='{latest_monday}'").copy()
+        # print(_df_adj)
+        kd(data=_df_adj, discrete=False)
+        macd(_df_adj)
+        macd_increasing(data=_df_adj)
+        dd_prev = _df_adj.iloc[-2, :]
+        dd = _df_adj.iloc[-1, :]
+        if dd.k >= 80 and dd.macd > 0 and dd.macd_increasing_2 == 1 and dd_prev.macd_increasing_2 == -1:
             # print(f"    {row.Symbol}: k: {dd.k}")
             result.append(_row.Symbol)
         i += 1
@@ -86,10 +86,10 @@ def filter_1mo(symbols):
     for s in symbols:
         print(f"\nChecking {s}({i}/{num_total}) ...")
 
-        df, df_adj = load_quotes(s, '1mo')
-        kd(data=df_adj, discrete=False)
-        macd_increasing(data=df_adj)
-        dd = df_adj.iloc[-1, :]
+        _, _df_adj = load_quotes(s, '1mo')
+        kd(data=_df_adj, discrete=False)
+        macd_increasing(data=_df_adj)
+        dd = _df_adj.iloc[-1, :]
 
         if dd.k >= 60 and dd.macd_increasing_2 == 1:
             # print(f"    {s}: k: {dd.k}")
@@ -105,14 +105,17 @@ if __name__ == '__main__':
     pd.set_option('max_colwidth', 120)
     pd.options.display.width = 2080
 
+    _latest_monday = '2021-07-26'
+
     # update_quotes_spx500()
     # exit()
 
     print("checking 1wk ...")
-    # wk_result = filter_1wk()
+    # wk_result = filter_1wk(latest_monday=latest_monday)
     # wk_result.to_pickle(get_pickle_file_name("result", "1wk"))
     wk_result = pd.read_pickle(get_pickle_file_name("result", "1wk"))
     print(wk_result)
+    # exit()
 
     print("checking 1mo ...")
     mo_result = filter_1mo(wk_result["symbol"].tolist())
@@ -123,10 +126,13 @@ if __name__ == '__main__':
     # load 1wk in order to sort by kd
     result_final = []
     for row in mo_result.itertuples():
-        df, df_adj = load_quotes(row.symbol, '1wk')
+        _, df_adj = load_quotes(row.symbol, '1wk')
+        df_adj = df_adj.query(f"index<='{_latest_monday}'").copy()
         kd(data=df_adj, discrete=False)
         result_final.append(df_adj.iloc[-1, :])
 
-    df = pd.DataFrame(result_final).sort_values(by=["k"])
-    print(df.to_excel("2021-08-01-spx500-results.xlsx"))
+    df = pd.DataFrame(result_final).sort_values(by=["k"], ascending=False)
+    df.to_excel(f"{_latest_monday}-spx500-results.xlsx")
 
+    # df, df_adj = load_quotes("AME", "1wk")
+    # print(df.tail(20))

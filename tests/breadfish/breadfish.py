@@ -8,8 +8,13 @@ from indicators.kd import kd
 from indicators.macd import macd, macd_increasing
 
 
+def get_script_folder():
+    _script_folder = pathlib.Path(__file__).resolve().parent
+    return _script_folder
+
+
 def get_pickle_file_name(symbol, interval):
-    _script_folder = pathlib.Path().absolute()
+    _script_folder = get_script_folder()
     _pickle_folder = os.path.join(_script_folder, "pickle", "quotes")
     os.makedirs(_pickle_folder, exist_ok=True)
     _pickle_file = os.path.join(_pickle_folder, f"{symbol}_{interval}.pkl")
@@ -31,10 +36,10 @@ def update_quotes_pickle(symbol, interval):
     hist_data["adjhigh"] = hist_data["high"] * hist_data["adj_ratio"]
     hist_data["adjlow"] = hist_data["low"] * hist_data["adj_ratio"]
 
-    df: pd.DataFrame = hist_data[
+    _df: pd.DataFrame = hist_data[
         ['ticker', 'open', 'high', 'low', 'close', 'adjopen', 'adjhigh', 'adjlow', 'adjclose', 'volume']]
-    # target_path =
-    df.to_pickle(get_pickle_file_name(symbol, interval))
+
+    _df.to_pickle(get_pickle_file_name(symbol, interval))
 
 
 def update_quotes_spx500():
@@ -71,8 +76,7 @@ def filter_1wk(latest_monday='2021-07-26'):
         macd_increasing(data=_df_adj)
         dd_prev = _df_adj.iloc[-2, :]
         dd = _df_adj.iloc[-1, :]
-        if dd.k >= 80 and dd.macd > 0 and dd.macd_increasing_2 == 1 and dd_prev.macd_increasing_2 == -1:
-            # print(f"    {row.Symbol}: k: {dd.k}")
+        if dd_prev.macd < 0 < dd.macd and dd.macd_increasing_2 == 1:
             result.append(_row.Symbol)
         i += 1
 
@@ -105,17 +109,21 @@ if __name__ == '__main__':
     pd.set_option('max_colwidth', 120)
     pd.options.display.width = 2080
 
-    _latest_monday = '2021-07-26'
+    _latest_monday = '2021-08-02'
 
     # update_quotes_spx500()
     # exit()
 
+    _, dd = load_quotes('TSLA', '1wk')
+    print(dd.tail())
+    exit()
+
     print("checking 1wk ...")
-    # wk_result = filter_1wk(latest_monday=latest_monday)
-    # wk_result.to_pickle(get_pickle_file_name("result", "1wk"))
+    wk_result = filter_1wk(latest_monday=_latest_monday)
+    wk_result.to_pickle(get_pickle_file_name("result", "1wk"))
     wk_result = pd.read_pickle(get_pickle_file_name("result", "1wk"))
     print(wk_result)
-    # exit()
+    exit()
 
     print("checking 1mo ...")
     mo_result = filter_1mo(wk_result["symbol"].tolist())
@@ -132,7 +140,7 @@ if __name__ == '__main__':
         result_final.append(df_adj.iloc[-1, :])
 
     df = pd.DataFrame(result_final).sort_values(by=["k"], ascending=False)
-    df.to_excel(f"{_latest_monday}-spx500-results.xlsx")
+    df.to_excel(os.path.join(get_script_folder(), f"{_latest_monday}-spx500-results.xlsx"))
 
-    # df, df_adj = load_quotes("AME", "1wk")
+    # df, df_adj = load_quotes("SHW", "1wk")
     # print(df.tail(20))

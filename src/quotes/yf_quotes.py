@@ -6,7 +6,7 @@ from concurrent import futures
 
 import pandas as pd
 from yahoo_fin.stock_info import get_data, tickers_sp500
-from utils.paths import get_pickle_file_name
+from ohlcutils.paths import get_pickle_file_name
 
 
 def load_quotes(symbol, interval):

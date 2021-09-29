@@ -6,7 +6,7 @@ import pandas as pd
 import talib
 
 
-def kd(data: pd.DataFrame, column_name_prefix=None, shift_periods=0, discrete=True,
+def kd(data: pd.DataFrame, column_name_prefix=None, shift_periods=0, discrete=False,
        fastk_period=5, slowk_period=3, slowd_period=3, slowk_matype=0, slowd_matype=0):
     """
     Attach stochastic columns.

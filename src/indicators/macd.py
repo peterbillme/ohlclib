@@ -1,5 +1,8 @@
+import time
+
 import pandas as pd
 import talib
+from yahoo_fin.stock_info import get_data
 
 
 def macd(data: pd.DataFrame, fastperiod=12, slowperiod=26, signalperiod=9, column_name_prefix=None):
@@ -66,3 +69,17 @@ def macd_increasing(data: pd.DataFrame, count=2, column_name_prefix=None, fastpe
         if column_name_prefix is not None else f"macd_increasing_{count}"
 
     data[column_name] = _data.macd.rolling(window=count + 1, axis=0).apply(cal, raw=True).fillna(0).astype(int)
+
+
+if __name__ == "__main__":
+    pd.options.display.max_rows = 2000
+    pd.options.display.max_columns = 200
+    pd.set_option('max_colwidth', 120)
+    pd.options.display.width = 2080
+
+    data = get_data('tsla', interval="1d")
+    hist_data = data.tail(300).copy()
+    macd_increasing(data=hist_data, count=2)
+    macd(data=hist_data)
+
+    print(hist_data)

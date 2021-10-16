@@ -4,7 +4,7 @@ This file offer quotes related time functions
 from datetime import datetime
 
 
-def week_end(self):
+def week_end():
     """
     return True if time is between 19:00 on Friday and 14:00 on Sunday
     """

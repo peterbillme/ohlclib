@@ -1,5 +1,3 @@
-import time
-
 import pandas as pd
 import talib
 from yahoo_fin.stock_info import get_data

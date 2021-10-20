@@ -17,11 +17,11 @@ def price_breakthrough(data: pd.DataFrame, period=15):
         return result
 
     c_name = f"breakthrough_{period}"
-    # 生成临时DataFrame
+    # produce tmp DataFrame
     __data = data.copy()
-    # 计算收盘价与开盘价的绝对差
+    # calculate abs price change
     __data["tmp_r"] = abs(__data["close"] - __data["open"])
     __data["up_or_down"] = __data.apply(lambda ser: 1 if (ser.close - ser.open) > 0 else -1 if (ser.close - ser.open) < 0 else 0, axis=1)
 
-    # 复制结果到目标表
+    # copy result
     data[c_name] = __data.tmp_r.rolling(window=period, axis=0).apply(cal, raw=True) * __data.up_or_down

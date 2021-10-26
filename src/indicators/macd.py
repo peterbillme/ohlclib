@@ -29,6 +29,7 @@ def macd_increasing(data: pd.DataFrame, count=2, keep_macd=True, column_name_pre
     Calculate macd increasing or decreasing number of count consecutively.
     :param data:
     :param count:
+    :param keep_macd:
     :param column_name_prefix:
     :param fastperiod:
     :param slowperiod:

@@ -80,6 +80,6 @@ if __name__ == "__main__":
     data = get_data('tsla', interval="1d")
     hist_data = data.tail(300).copy()
     macd_increasing(data=hist_data, count=2)
-    macd(data=hist_data)
+    # macd(data=hist_data)
 
     print(hist_data)

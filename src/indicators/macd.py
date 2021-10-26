@@ -24,7 +24,7 @@ def macd(data: pd.DataFrame, fastperiod=12, slowperiod=26, signalperiod=9, colum
     )
 
 
-def macd_increasing(data: pd.DataFrame, count=2, column_name_prefix=None, fastperiod=12, slowperiod=26, signalperiod=9):
+def macd_increasing(data: pd.DataFrame, count=2, keep_macd=True, column_name_prefix=None, fastperiod=12, slowperiod=26, signalperiod=9):
     """
     Calculate macd increasing or decreasing number of count consecutively.
     :param data:
@@ -66,6 +66,8 @@ def macd_increasing(data: pd.DataFrame, count=2, column_name_prefix=None, fastpe
     column_name = f"{column_name_prefix}_macd_increasing_{count}" \
         if column_name_prefix is not None else f"macd_increasing_{count}"
 
+    if keep_macd:
+        data["macd"] = _data["macd"]
     data[column_name] = _data.macd.rolling(window=count + 1, axis=0).apply(cal, raw=True).fillna(0).astype(int)
 
 

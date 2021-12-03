@@ -13,11 +13,11 @@ def hammer(data: pd.DataFrame):
     def cal(ser):
         result = 0
         if abs(ser.open - ser.close) > abs(ser.high - max(ser.open, ser.close)):
-            # 上影线比实体短，可能为多方
+            # upper shadow is shorter，it might be long trend
             rr = (min(ser.open, ser.close) - ser.low) / abs(ser.close - ser.open)
             result = rr if rr > 1 else 0
         elif abs(ser.open - ser.close) > abs(ser.low - min(ser.open, ser.close)):
-            # 下影线比实体短，可能为空方
+            # lower shadow is shorter, it might be short trend
             rr = abs(ser.high - max(ser.open, ser.close)) / abs(ser.close - ser.open)
             result = -rr if rr > 1 else 0
 

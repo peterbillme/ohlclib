@@ -8,7 +8,7 @@ def ema(data: pd.DataFrame, periods: [] = None, apply_to="close", column_name_pr
     Attach ema to given dataframe. Column names will be [column_name_prefix_]ema_[period]_[apply_to]
     :param data:
     :param periods:
-    :param apply_to: Calculate ema on which which price. Example, if apply_to='open', then function will return new column named '[column_name_prefix]_ema_open'
+    :param apply_to: Calculate ema on which price. Example, if apply_to='open', then function will return new column named '[column_name_prefix]_ema_open'
     :param column_name_prefix:
     :return:
     """

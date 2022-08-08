@@ -69,7 +69,7 @@ def macd_increasing(data: pd.DataFrame, count=2, keep_macd=True, column_name_pre
 
     if keep_macd:
         data["macd"] = _data["macd"]
-    data[column_name] = _data.macd.rolling(window=count + 1, axis=0).apply(cal, raw=True).fillna(0).astype(int)
+    data[column_name] = _data.macd.rolling(window=count, axis=0).apply(cal, raw=True).fillna(0).astype(int)
 
 
 if __name__ == "__main__":
